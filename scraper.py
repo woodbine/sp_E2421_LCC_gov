@@ -27,7 +27,7 @@ block = soup.find('div',{'class':'page_contents'})
 links = block.findAll('a', href=True)
 
 for link in links:
-	url = link['href']
+	url = 'http://www.leics.gov.uk/' + link['href']
 	#  grab the data out of the onclick instrution from javascript
 	if '.csv' in url:
 		#  clean up the onclick data
