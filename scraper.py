@@ -84,7 +84,7 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "E2421_LCC_gov"
-url = "http://www.leics.gov.uk/payments_to_suppliers-lcc"
+url = "http://www.leicestershire.gov.uk/about-the-council/council-spending/accounts-and-payments#supplier"
 errors = 0
 data = []
 
@@ -96,31 +96,15 @@ soup = BeautifulSoup(html, 'lxml')
 
 #### SCRAPE DATA
 
-block = soup.find('div',{'class':'page_contents'})
-links = block.findAll('a', href=True)
-ul_links = block.find('ul').find_all('li')
-for ul_link in ul_links:
-    archive_url = 'http://www.leics.gov.uk/' + ul_link.find('a')['href']
-    archive_html = urllib2.urlopen(archive_url)
-    archive_soup = BeautifulSoup(archive_html, 'lxml')
-    arch_block = archive_soup.find('div',{'class':'page_contents'})
-    arch_links = arch_block.findAll('a', href=True)
-    for arch_link in arch_links:
-        arch_url = 'http://www.leics.gov.uk/' + arch_link['href']
-        if '.csv' in arch_url:
-            title = arch_link.contents[0]
-            csvYr = title.split(' ')[1]
-            csvMth = title.split(' ')[0][:3]
-            csvMth = convert_mth_strings(csvMth.upper())
-            data.append([csvYr, csvMth, arch_url])
-for link in links:
-    url = 'http://www.leics.gov.uk/' + link['href']
-    if '.csv' in url:
-        title = link.contents[0]
-        csvYr = title.split(' ')[1]
-        csvMth = title.split(' ')[0][:3]
+links = soup.findAll('a', href=True)
+for ul_link in links:
+    if 'Payments to suppliers' in ul_link.text and 'CSV' in ul_link.text:
+        archive_url = 'http://www.leicestershire.gov.uk' + ul_link['href'].strip()
+        title = ul_link.text
+        csvYr = title.split('(')[0].strip().split()[-1]
+        csvMth = title.split('(')[0].strip().split()[-2][:3]
         csvMth = convert_mth_strings(csvMth.upper())
-        data.append([csvYr, csvMth, url])
+        data.append([csvYr, csvMth, archive_url])
 
 #### STORE DATA 1.0
 
